@@ -1,0 +1,61 @@
+Instructions:
+-----------
+Install JSON Processing Lib:
+http://www.blprnt.com/processing/json.zip
+On Github:
+https://github.com/agoransson/JSON-processing
+
+Increase memory in Processing preferences 
+Try 512 or 1024 MB
+
+Generating data:
+-----------
+• Download a data-file from the MTA and save in the same folder as parse.rb
+
+• Change parse.rb to read the new file:
+
+	input_filename = 'turnstile_130202.txt'
+
+• Move the resulting "parsed_data.json" to turnstyle/data
+
+Data Format:
+-----------
+Hash {
+	control_unit : Hash {
+		control_area  : string,
+		total_entries : int,		
+		total_exits   : int,
+		samples 	  : Array [
+			{
+				time  	: string,
+				desc  	: string,
+				exits 	: int,
+				entries : int,
+				date    : string
+			}
+		]
+	}
+}
+
+Simple Example (1 control unit):
+
+{
+	"R453" : {
+		"total_entries" : 7674,
+		"control_area"	: "R051",
+		"total_exits"	: 2922,
+		"samples" : [
+			{ 
+				"time"  	: "03:00:00",
+				"desc"  	: "REGULAR",
+				"exits" 	: 172535,
+				"entries"	: 89834,
+				"date"		: "01-26-13"
+			},
+			{
+				//...	
+			}
+		]
+	},
+	// ...
+}
