@@ -112,9 +112,9 @@ void setup()
     int sampleSize = cuSamples.size();
     println(cu + " num samples: " + sampleSize);
     
+    // NOTE: This isn't a valid total, because there are multiple 
+    // sub-units in the samples.
     println("max entries: " + greatestNumEntries + " min entries: " + leastNumEntries);
-    long sampledEntries = greatestNumEntries - leastNumEntries;
-    println("delta of entries sampled: " + sampledEntries);
     
     println("date range: " + earliestDate + " through " + latestDate);
     
