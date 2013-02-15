@@ -19,6 +19,8 @@ Station selectedStation;
 Date minSampleDate;
 Date maxSampleDate;
 
+int stationIdx = 0;
+
 void setup()
 {
   
@@ -128,6 +130,8 @@ void setup()
     }
   }
   
+  println("Date Range: "+minSampleDate+" - "+maxSampleDate);
+  
   // Sort the control names by alphabetical order
   Iterator iterator = stations.entrySet().iterator();
   stationNames = new String[stations.size()];
@@ -138,11 +142,34 @@ void setup()
     i += 1;
   }
   Arrays.sort(stationNames);
+
+  parseStationWithName(stationNames[stationIdx]);
   
-  // Lets take a look at a sampple station. The Roosevelt Island Tram
+}
+
+void keyPressed()
+{
+  println("KEY PRESS");
+  if(key == CODED){
+    if(keyCode == LEFT){
+      stationIdx = stationIdx-1;
+      if(stationIdx < 0){
+        stationIdx = stationNames.length + stationIdx;
+      }
+    }else if(keyCode == RIGHT){
+      stationIdx = (stationIdx+1) % stationNames.length;
+    }
+    String nextStationName = stationNames[stationIdx];
+    println("Selected station: "+nextStationName);
+    parseStationWithName(nextStationName);
+  }
+}
+
+void parseStationWithName(String stationName)
+{
   
-  selectedStation = (Station)stations.get("R469");
-  println("tramStation: "+selectedStation);
+  selectedStation = (Station)stations.get(stationName);
+  println("selectedStation: "+selectedStation);
   
   numBucketStreams = selectedStation.controlUnits.size();
   long startMS = minSampleDate.getTime();
@@ -153,14 +180,11 @@ void setup()
     
   allEntries = new int[numBucketStreams][numBuckets];
   
-  println("numBucketStreams "+numBucketStreams+" numBuckets "+numBuckets);
-  
   int cuIdx = 0;
   
   for (Object cuName : selectedStation.controlUnits.keySet()) {
     
-    ControlUnit cu = (ControlUnit)selectedStation.controlUnits.get(cuName);
-    println(cu);
+    ControlUnit cu = (ControlUnit)selectedStation.controlUnits.get(cuName);   
     
     long lastNumEntries = -1;
 
@@ -188,34 +212,36 @@ void setup()
     cuIdx++;
     
   }
-
-  
 }
 
 void draw()
 {
-  background(80);
+  background(50);
   fill(255,255,0);  
-
-  float streamHeight = height / numBucketStreams;
-  float bucketWidth = width / numBuckets;
-
+  
+  if(numBucketStreams > 0 && numBuckets > 0){
+  
+    float streamHeight = height / numBucketStreams;
+    float bucketWidth = width / numBuckets;
+  
+    float maxSample = constrain(10, mouseY, height);
+    for(int s=0;s<numBucketStreams;s++){    
+      for(int b=0;b<numBuckets;b++){
+        float x = b*bucketWidth;
+        float y = streamHeight+(s*streamHeight);
+        int entryCount = allEntries[s][b];
+        float scalarVal = (float)entryCount / (float)maxSample;
+        float dataHeight = streamHeight * scalarVal;  
+        fill(255,255,255,150);
+        rect(x, y-dataHeight, bucketWidth, dataHeight);
+      }
+    }
+    
+  }
+  
   textAlign(LEFT);
   fill(255);
   text(selectedStation.name + " / " + selectedStation.remote + " / " + selectedStation.booth, 10, 20);    
-  
-  float maxSample = mouseY;
-  for(int s=0;s<numBucketStreams;s++){    
-    for(int b=0;b<numBuckets;b++){
-      float x = b*bucketWidth;
-      float y = streamHeight+(s*streamHeight);
-      int entryCount = allEntries[s][b];
-      float scalarVal = (float)entryCount / (float)maxSample;
-      float dataHeight = streamHeight * scalarVal;  
-      fill(255,255,255,200);
-      rect(x, y-dataHeight, bucketWidth, dataHeight);
-    }
-  }
   
 }
 
