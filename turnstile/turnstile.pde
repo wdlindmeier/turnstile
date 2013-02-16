@@ -3,22 +3,15 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Date;
 
-HashMap stations;
-String[] stationNames;
-
-String stationFilename = "data/station_names.csv";
 String dataFilename = "data/turnstile_130202.txt";
 
-long subunitCount = 0;
-long sampleCount = 0;
+TurnstileParser parser; 
+
+Station selectedStation;
+
 int numBuckets;
 int numBucketStreams;
 int allEntries[][];
-Station selectedStation;
-
-Date minSampleDate;
-Date maxSampleDate;
-
 int stationIdx = 0;
 
 void setup()
@@ -26,124 +19,10 @@ void setup()
   
   size(800, 600);
   
-  maxSampleDate = new Date(1000);
-  minSampleDate = new Date();
-
-  stations = new HashMap();
+  parser = new TurnstileParser();
+  parser.parseDataFile(dataFilename);
   
-  // First parse the station names
-  
-  println("Parsing turnstyle data in file: " + stationFilename);
-  String[] stationLines = loadStrings(stationFilename);
-  for (int i=0;i<stationLines.length;i++) {
-    if(i>0){
-      String line = stationLines[i];
-      String[] stationData = line.split(",");
-      if(stationData.length > 4){      
-        String stationName = stationData[2];
-        Station station = new Station(stationName);
-        station.remote = stationData[0];
-        station.booth = stationData[1];
-        station.line = stationData[3];
-        station.division = stationData[4];       
-        stations.put(station.remote, station);
-      }else{
-        println("Couldnt parse line: "+line);
-      }      
-    }
-  }
-  println("Parsed "+stations.size()+" stations");
-
-  // Then parse the data  
-  println("Parsing turnstyle data in file: " + dataFilename);
-  
-  Date today = new Date();
-  
-  String[] dataLines = loadStrings(dataFilename);
-  for (String line:dataLines) {
-
-    String stripLine = line.trim();
-    if (!stripLine.equals("")) {
-
-      String[] lineData = stripLine.split(",");
-      
-      // Get the station 
-      String remoteName = lineData[1];      
-      Station station = (Station)stations.get(remoteName);
-      if (station == null) {
-        println("ERROR: Could not find station with remote name: "+remoteName);
-        continue;
-      }
-      
-      // Get the sub-unit
-      String subunitName = lineData[2];
-      ControlUnit subunit = (ControlUnit)station.controlUnits.get(subunitName);
-      if(subunit == null){
-        subunit = new ControlUnit(subunitName);
-        station.controlUnits.put(subunitName, subunit); 
-        subunitCount++;
-      }
-      
-      // Add the samples
-      int samplesLength = lineData.length - 3;
-      if(samplesLength % 5 != 0){
-        
-        println("ERROR: irregular sample length:");
-        println(lineData);
-        
-      }else{
-        for (int i=0;i<samplesLength;i+=5) {
-          
-          String date = lineData[3+i+0];
-          String time = lineData[3+i+1];
-          String desc = lineData[3+i+2];
-          String entries = lineData[3+i+3];
-          String exits = lineData[3+i+4];
-          
-          if(desc.equals("REGULAR")){ // Ignore irregular samples
-            
-            Sample sample = new Sample(date, time);
-            
-            if(sample.datetime.compareTo(today) > 0){
-              println("ERROR: sample date is greater than today");
-              println(lineData);
-            }
-            
-            sample.desc = desc;
-            sample.numEntries = (long)int(entries);
-            sample.numExits = (long)int(exits);
-            subunit.samples.add(sample);
-            
-            if(sample.datetime.compareTo(maxSampleDate) > 0){
-              maxSampleDate = sample.datetime;
-            }
-            
-            if(sample.datetime.compareTo(minSampleDate) < 0){
-              minSampleDate = sample.datetime;
-            }
-            
-            sampleCount++;
-            
-          }        
-        }
-      }
-    }
-  }
-  
-  println("Date Range: "+minSampleDate+" - "+maxSampleDate);
-  
-  // Sort the control names by alphabetical order
-  Iterator iterator = stations.entrySet().iterator();
-  stationNames = new String[stations.size()];
-  int i = 0;
-  while (iterator.hasNext ()) {
-    Map.Entry pairs = (Map.Entry)iterator.next();
-    stationNames[i] = (String)pairs.getKey();
-    i += 1;
-  }
-  Arrays.sort(stationNames);
-
-  parseStationWithName(stationNames[stationIdx]);
+  parseStationWithName(parser.stationNames[stationIdx]);
   
 }
 
@@ -154,12 +33,12 @@ void keyPressed()
     if(keyCode == LEFT){
       stationIdx = stationIdx-1;
       if(stationIdx < 0){
-        stationIdx = stationNames.length + stationIdx;
+        stationIdx = parser.numStations + stationIdx;
       }
     }else if(keyCode == RIGHT){
-      stationIdx = (stationIdx+1) % stationNames.length;
+      stationIdx = (stationIdx+1) % parser.numStations;
     }
-    String nextStationName = stationNames[stationIdx];
+    String nextStationName = parser.stationNames[stationIdx];
     println("Selected station: "+nextStationName);
     parseStationWithName(nextStationName);
   }
@@ -168,12 +47,12 @@ void keyPressed()
 void parseStationWithName(String stationName)
 {
   
-  selectedStation = (Station)stations.get(stationName);
+  selectedStation = (Station)parser.stations.get(stationName);
   println("selectedStation: "+selectedStation);
   
   numBucketStreams = selectedStation.controlUnits.size();
-  long startMS = minSampleDate.getTime();
-  long endMS = maxSampleDate.getTime();
+  long startMS = parser.minSampleDate.getTime();
+  long endMS = parser.maxSampleDate.getTime();
   int hoursPerSample = 4;
   long msPerSample = 3600000 * hoursPerSample;
   numBuckets = ceil((endMS - startMS) / msPerSample);
