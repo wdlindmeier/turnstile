@@ -3,8 +3,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Date;
 
-// String stationFilename = "data/station_names.csv";
-
 String stationIDsFile = "data/control_station_ids.csv";
 String stationLocationsFile = "data/station_locations.csv";
 

@@ -46,15 +46,12 @@ void setup()
 void parseAllStations()
 {
     
-  // A stream for each station
   startMS = parser.minSampleDate.getTime();
   endMS = parser.maxSampleDate.getTime();
   numBuckets = ceil((endMS - startMS) / msPerSample) + 1;    
-  //allEntries = new int[numBucketStreams][numBuckets];
 
   int streamIndex = 0;
   for (Object stationID : parser.stations.keySet()) {
-    // println("Parsing station "+parser.stations.get(stationID));
     parseStationWithKey((String)stationID, streamIndex);
     streamIndex++;
   }
@@ -148,46 +145,3 @@ void draw()
   
 }
 
-/*
-void draw()
-{
-  background(50);
-  fill(255,255,0);  
-  
-  if(numBuckets > 0){
-  
-    float streamHeight = height / parser.numStations;
-    float bucketWidth = width / numBuckets;
-    
-    // Play with this.
-    // Mouse adjusts the contrast of the data.
-    float maxSample = mouseY * 20;
-    
-    //for(int s=0;s<parser.numStations;s++){
-    int s = 0;
-    for (Object stationID : parser.stations.keySet()) {
-      Station station = (Station)parser.stations.get(stationID);    
-      for(int b=0;b<numBuckets;b++){
-        float x = b*bucketWidth;
-        float y = s*streamHeight;
-        int entryCount = station.totalEntries[b];
-        float scalarVal = (float)entryCount / (float)maxSample;
-        int plotBrightness = constrain(round(255 * scalarVal), 0, 255);
-        noStroke();        
-        fill(plotBrightness);
-        rect(x, y, bucketWidth, streamHeight);        
-      }
-      s++;
-    }
-    
-  }
-  
-  textAlign(LEFT);
-  fill(255);
-  
-  pushMatrix();
-  rotate(HALF_PI);
-  text(parser.minSampleDate + " - " + parser.maxSampleDate, 5, -5);
-  popMatrix();  
-}
-*/
