@@ -3,7 +3,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Date;
 
-String dataFilename = "data/turnstile_130202.txt";
+//String dataFilename = "data/turnstile_130202.txt";
+String dataFilename = "data/turnstile_121103.txt";
 
 TurnstileParser parser; 
 
