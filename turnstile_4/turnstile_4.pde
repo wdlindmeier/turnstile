@@ -39,7 +39,7 @@ boolean didPrintRidershipRestoredData = false;
   
 void setup()
 {
-  
+
   parser = new TurnstileParser();
   parser.parseDataFile(dataFilename);
   
@@ -137,7 +137,6 @@ void draw()
   
   boolean printRidershipData = drawMode > 0 && !didPrintRidershipRestoredData;
     
-    
   if(printRidershipData){
     println("var stations = {");
   }    
@@ -164,25 +163,17 @@ void draw()
     
     int plotBrightness = constrain(round(255 * scalarVal), 0, 255);
     
-    noStroke();
-    fill(plotBrightness);      
+    noStroke();    
+    fill(plotBrightness);
     ellipse(x, y, 10, 10);        
-    
 
   }
-     
+  
   if(printRidershipData){
     println("};");
     didPrintRidershipRestoredData = true;
   }
-  
-  textAlign(LEFT);
-  fill(255);
-  
-  pushMatrix();
-  rotate(HALF_PI);
-  text(parser.minSampleDate + " - " + parser.maxSampleDate, 5, -5);
-  popMatrix();  
+
   
 }
 
