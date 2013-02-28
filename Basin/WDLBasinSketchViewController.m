@@ -12,14 +12,35 @@
 #import "NOCSceneBox.h"
 #import "station_restore_geo_data.h"
 #import <GLKit/GLKit.h>
+#import "Edgy.h"
+#import "DelaunayTriangulation+NOCHelpers.h"
+
+static inline float zPosForXY(float px, float py)
+{
+    for(int j=0;j<NumStations;j++){
+        float x = StationGeometry[j*3] * 2 - 1;
+        float y = StationGeometry[j*3+1] * -2 + 1;
+        float z = StationGeometry[j*3+2];
+//        float x = StationGeometry[i*3]
+//        float y = StationGeometry[i*3+1]
+
+        if(px == x & py == y){
+            return z;
+            break;
+        }
+    }
+    return -1;
+}
 
 @interface WDLBasinSketchViewController ()
 {
-    GLKTextureInfo *_nodeTexture;
+    DelaunayTriangulation *_triangulation;
     NSMutableArray *_movers;
     NOCSceneBox *_sceneBox;
     NSMutableSet *_currentTouches;
     GLKMatrix4 _matScene;
+    GLfloat *_trianglePoints;
+    int _numTrianglePoints;
     
     float _xRotationRate;
     float _yRotationRate;
@@ -27,7 +48,8 @@
     float _xRotation;
     float _depthZoom;
     float _prevPinchDistance;
-    
+    BOOL _didExportOBJ;
+
 }
 
 @end
@@ -43,13 +65,14 @@
 
 }
 
-static NSString * NOCShaderNameMovers3DMover = @"Mover";
+static NSString * NOCShaderNameBasin = @"Basin";
 static NSString * NOCShaderNameSceneBox = @"SimpleLine";
 static NSString * UniformMVProjectionMatrix = @"modelViewProjectionMatrix";
 static NSString * UniformMoverTexture = @"texture";
 
 - (void)setup
 {
+    _didExportOBJ = NO;
     
     self.view.multipleTouchEnabled = YES;
     
@@ -60,27 +83,17 @@ static NSString * UniformMoverTexture = @"texture";
     _xRotation = 0.0f;    
     _depthZoom = -4.0f;
 
-    // Load the mover texture.
-    UIImage *moverTexImage = [UIImage imageNamed:@"mover"];
-    NSError *texError = nil;
-    _nodeTexture = [GLKTextureLoader textureWithCGImage:moverTexImage.CGImage
-                                                options:nil
-                                                  error:&texError];
-    if(texError){
-        NSLog(@"ERROR: Could not load the texture: %@", texError);
-    }
-    
+
     // Setup the shaders
-    NOCShaderProgram *shaderMovers = [[NOCShaderProgram alloc] initWithName:NOCShaderNameMovers3DMover];
-    shaderMovers.attributes = @{@"position" : @(GLKVertexAttribPosition),
-                                @"texCoord" : @(GLKVertexAttribTexCoord0)};
-    shaderMovers.uniformNames = @[ UniformMVProjectionMatrix, UniformMoverTexture ];
+    NOCShaderProgram *shaderMovers = [[NOCShaderProgram alloc] initWithName:NOCShaderNameBasin];
+    shaderMovers.attributes = @{@"position" : @(GLKVertexAttribPosition)};
+    shaderMovers.uniformNames = @[ UniformMVProjectionMatrix ];
     
     NOCShaderProgram *shaderScene = [[NOCShaderProgram alloc] initWithName:NOCShaderNameSceneBox];
     shaderScene.attributes = @{ @"position" : @(GLKVertexAttribPosition) };
     shaderScene.uniformNames = @[ UniformMVProjectionMatrix ];
     
-    self.shaders = @{NOCShaderNameMovers3DMover : shaderMovers,
+    self.shaders = @{NOCShaderNameBasin : shaderMovers,
                      NOCShaderNameSceneBox : shaderScene};
     
 
@@ -89,21 +102,47 @@ static NSString * UniformMoverTexture = @"texture";
     
     _sceneBox = [[NOCSceneBox alloc] initWithAspect:aspect];
     
-    
-    _movers = [NSMutableArray arrayWithCapacity:1000];
-
-    float moverDimension = 0.02;
+    float _viewAspect = sizeView.width / sizeView.height;
+    _triangulation = [DelaunayTriangulation triangulationWithGLSize:CGSizeMake(2.0, 2.0/_viewAspect)];
     for(int i=0;i<NumStations;i++){
-        GLKVector3 sizeMover = GLKVector3Make(moverDimension, moverDimension, moverDimension);        
-        GLKVector3 positionMover = GLKVector3Make(StationGeometry[i*3] * 2 - 1,
-                                                  StationGeometry[i*3+1] * -2 + 1,
-                                                  StationGeometry[i*3+2] * 2 - 1);
-        NOCMover3D *mover = [[NOCMover3D alloc] initWithSize:sizeMover
-                                                    position:positionMover
-                                                        mass:1.0];
-        [_movers addObject:mover];
+        float x = StationGeometry[i*3] * 2 - 1;
+        float y = StationGeometry[i*3+1] * -2 + 1;
+        DelaunayPoint *newPoint = [DelaunayPoint pointAtX:x
+                                                     andY:y];
+        [_triangulation addPoint:newPoint withColor:nil];
     }
     
+    _numTrianglePoints = _triangulation.triangles.count * 4;
+
+    _trianglePoints = malloc(sizeof(GLfloat) * _numTrianglePoints * 3);
+    
+    int idxPoint = 0;
+    for (DelaunayTriangle *triangle in _triangulation.triangles)
+    {
+        DelaunayPoint *prevPoint = triangle.startPoint;
+        int edgeCount = triangle.edges.count;
+        for(int i=0;i<edgeCount;i++)
+        {
+            DelaunayEdge *edge = triangle.edges[i];
+            DelaunayPoint *p2 = [edge otherPoint:prevPoint];
+            _trianglePoints[idxPoint+(i*3)+0] = p2.x;
+            _trianglePoints[idxPoint+(i*3)+1] = p2.y;
+            _trianglePoints[idxPoint+(i*3)+2] = zPosForXY(p2.x,p2.y);
+            
+            prevPoint = p2;
+        }
+        
+        // Close
+        _trianglePoints[idxPoint+(edgeCount*3)+0] = prevPoint.x;
+        _trianglePoints[idxPoint+(edgeCount*3)+1] = prevPoint.y;
+        _trianglePoints[idxPoint+(edgeCount*3)+2] = zPosForXY(prevPoint.x,prevPoint.y);
+        
+        idxPoint+=edgeCount+1;
+        
+    }
+    
+    NSLog(@"idxPoint: %i numPoints: %i", idxPoint, _numTrianglePoints);
+
 }
 
 - (void)resize
@@ -137,9 +176,19 @@ static NSString * UniformMoverTexture = @"texture";
         _xRotationRate *= rotationDecayRate;
     }
     _yRotation += _yRotationRate;
-
     _xRotation += _xRotationRate;
 
+}
+
+int idxForXYX(float x, float y, float z, NSMutableArray *inVerts)
+{
+    NSString *vtx = [NSString stringWithFormat:@"%f %f %f", x, y, z];
+    int idx = [inVerts indexOfObject:vtx];
+    if(idx == NSNotFound){
+        [inVerts addObject:vtx];
+        idx = inVerts.count - 1;
+    }
+    return idx + 1; // indexes start with 1
 }
 
 - (void)draw
@@ -163,15 +212,100 @@ static NSString * UniformMoverTexture = @"texture";
     glUniformMatrix4fv([projMatLoc intValue], 1, 0, matScene.m);
     [_sceneBox render];
     
-    // Draw the movers
-
-    NOCShaderProgram *shaderMovers = self.shaders[NOCShaderNameMovers3DMover];
+    // Draw the points
+    NOCShaderProgram *shaderMovers = self.shaders[NOCShaderNameBasin];
     [shaderMovers use];
     
+    // Create the Model View Projection matrix for the shader
+    projMatLoc = shaderMovers.uniformLocations[UniformMVProjectionMatrix];
+    // Pass mvp into shader
+    glUniformMatrix4fv([projMatLoc intValue], 1, 0, matScene.m);
+
     // Enable alpha blending for the transparent png
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    /*
+    glEnableVertexAttribArray(GLKVertexAttribPosition);
+    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, 0, &_trianglePoints);
     
+    //int numCoords = sizeof(_trianglePoints) / sizeof(GLfloat) / 3;
+    
+    glDrawArrays(GL_LINE_LOOP, 0, _numTrianglePoints);
+    */
+    
+    NSMutableArray *verts = nil;
+    NSMutableArray *faces = nil;
+    
+    if(!_didExportOBJ){
+        verts = [NSMutableArray arrayWithCapacity:_numTrianglePoints];
+        faces = [NSMutableArray arrayWithCapacity:_numTrianglePoints];
+    }
+    
+    for (DelaunayTriangle *triangle in _triangulation.triangles)
+    {
+        int edgeCount = triangle.edges.count;
+        int numPoints = edgeCount + 1;
+        GLfloat trianglePoints[numPoints*3];
+        
+        DelaunayPoint *prevPoint = triangle.startPoint;
+        
+        NSMutableArray *indexes = [NSMutableArray array];
+        
+        for(int i=0;i<edgeCount;i++)
+        {
+            DelaunayEdge *edge = triangle.edges[i];
+            DelaunayPoint *p2 = [edge otherPoint:prevPoint];
+            float x = p2.x;
+            float y = p2.y;
+            float z = zPosForXY(p2.x,p2.y);
+            trianglePoints[i*3+0] = x;
+            trianglePoints[i*3+1] = y;
+            trianglePoints[i*3+2] = z;
+            
+            if(!_didExportOBJ){
+                [indexes addObject:@(idxForXYX(x,y,z,verts))];
+            }
+            
+            prevPoint = p2;
+            
+        }
+        
+        // Close
+        float x = prevPoint.x;
+        float y = prevPoint.y;
+        float z = zPosForXY(prevPoint.x,prevPoint.y);
+        trianglePoints[edgeCount*3+0] = x;
+        trianglePoints[edgeCount*3+1] = y;
+        trianglePoints[edgeCount*3+2] = z;
+        
+        // I dont think we need this
+
+        if(!_didExportOBJ){
+            //[indexes addObject:@(idxForXYX(x,y,z,verts))];
+        }
+
+        glEnableVertexAttribArray(GLKVertexAttribPosition);
+        glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, 0, &trianglePoints);
+        
+        int numCoords = sizeof(trianglePoints) / sizeof(GLfloat) / 3;
+        
+        glDrawArrays(GL_LINE_LOOP, 0, numCoords);
+        
+        if(!_didExportOBJ){
+            // Add the face to the list
+            [faces addObject:[indexes componentsJoinedByString:@" "]];
+        }
+    }
+    
+    if(!_didExportOBJ){
+        // Print out the obj
+        NSLog(@"\nv %@", [verts componentsJoinedByString:@"\nv "]);
+        NSLog(@"\nf %@", [faces componentsJoinedByString:@"\nf "]);
+    }
+    
+    _didExportOBJ = YES;
+    
+    /*
     // Bind the texture
     glEnable(GL_TEXTURE_2D);
     glActiveTexture(0);
@@ -184,10 +318,6 @@ static NSString * UniformMoverTexture = @"texture";
     // Create the Model View Projection matrix for the shader
     projMatLoc = shaderMovers.uniformLocations[UniformMVProjectionMatrix];
     
-    GLKMatrix4 inverseSceneMat = GLKMatrix4Identity;
-    inverseSceneMat = GLKMatrix4Rotate(inverseSceneMat, GLKMathDegreesToRadians(_xRotation*-1), 1.0f, 0.0f, 0.0f);
-    inverseSceneMat = GLKMatrix4Rotate(inverseSceneMat, GLKMathDegreesToRadians(_yRotation*-1), 0.0f, 1.0f, 0.0f);
-    
     // Render each mover
     for(NOCMover3D *mover in _movers){
         
@@ -197,8 +327,8 @@ static NSString * UniformMoverTexture = @"texture";
         // TODO:
         // Maultiply by the inverse of the scene mat.
         // Does this billbaord the texture?
-        modelMat = GLKMatrix4Multiply(modelMat, inverseSceneMat);
-        
+        // modelMat = GLKMatrix4Multiply(modelMat, inverseSceneMat);
+     
         // Multiply by the projection matrix
         GLKMatrix4 mvProjMat = GLKMatrix4Multiply(matScene, modelMat);
         
@@ -212,13 +342,15 @@ static NSString * UniformMoverTexture = @"texture";
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
-    
+    */
 }
 
 - (void)teardown
 {
     //..
+    free(_trianglePoints);
 }
+
 
 #pragma mark - Touch
 
