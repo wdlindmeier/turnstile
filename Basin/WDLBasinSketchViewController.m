@@ -60,8 +60,8 @@ static inline float zPosForXY(float px, float py)
 
 - (void)clear
 {
-    glClearColor(0.2, 0.2, 0.2, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0, 0, 0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 }
 
@@ -72,7 +72,7 @@ static NSString * UniformMoverTexture = @"texture";
 
 - (void)setup
 {
-    _didExportOBJ = NO;
+    _didExportOBJ = YES;//NO;
     
     self.view.multipleTouchEnabled = YES;
     
@@ -198,7 +198,7 @@ int idxForXYX(float x, float y, float z, NSMutableArray *inVerts)
 
     GLKMatrix4 matScene = GLKMatrix4Multiply(_projectionMatrix3D, _matScene);
 
-    float zMulti = self.sliderDepth.value;
+    float zMulti = 0.0f;//self.sliderDepth.value;
     matScene = GLKMatrix4Multiply(matScene, GLKMatrix4MakeScale(1, 1, zMulti));
 
     NSNumber *projMatLoc = nil;
@@ -221,17 +221,8 @@ int idxForXYX(float x, float y, float z, NSMutableArray *inVerts)
     // Pass mvp into shader
     glUniformMatrix4fv([projMatLoc intValue], 1, 0, matScene.m);
 
-    // Enable alpha blending for the transparent png
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    /*
-    glEnableVertexAttribArray(GLKVertexAttribPosition);
-    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, 0, &_trianglePoints);
-    
-    //int numCoords = sizeof(_trianglePoints) / sizeof(GLfloat) / 3;
-    
-    glDrawArrays(GL_LINE_LOOP, 0, _numTrianglePoints);
-    */
+
+    glEnable(GL_DEPTH_TEST);
     
     NSMutableArray *verts = nil;
     NSMutableArray *faces = nil;
@@ -289,7 +280,7 @@ int idxForXYX(float x, float y, float z, NSMutableArray *inVerts)
         
         int numCoords = sizeof(trianglePoints) / sizeof(GLfloat) / 3;
         
-        glDrawArrays(GL_LINE_LOOP, 0, numCoords);
+        glDrawArrays(GL_TRIANGLES, 0, numCoords);
         
         if(!_didExportOBJ){
             // Add the face to the list

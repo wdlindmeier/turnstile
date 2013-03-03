@@ -123,8 +123,8 @@
 		A97EB57A16D48D0000F3433C /* mover.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mover.png; sourceTree = "<group>"; };
 		A97EB57E16D48E5500F3433C /* station_restore_geo_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = station_restore_geo_data.h; sourceTree = "<group>"; };
 		A97EB58016D4908200F3433C /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
-		A97EB58216D491B900F3433C /* Basin.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Basin.fsh; sourceTree = "<group>"; };
-		A97EB58316D491B900F3433C /* Basin.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Basin.vsh; sourceTree = "<group>"; };
+		A97EB58216D491B900F3433C /* Basin.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Basin.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
+		A97EB58316D491B900F3433C /* Basin.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Basin.vsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		A97EB58616D4987D00F3433C /* WDLBasinSketchViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WDLBasinSketchViewController.xib; sourceTree = "<group>"; };
 		A989948C16DA9B3F002EDDE7 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
 		A989948D16DA9B3F002EDDE7 /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };

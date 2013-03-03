@@ -3,6 +3,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Date;
 import org.processing.wiki.triangulate.*;
+import processing.opengl.*;
 
 ArrayList triangles = new ArrayList();
 ArrayList points = new ArrayList();
@@ -58,7 +59,7 @@ void setup()
   println("unknownStationIDs:\n"+unknownStationIDs);
   println("unknownControlUnits:\n"+unknownControlUnits);
   */
-    renderTriangles();
+  renderTriangles();
 
 }
 
@@ -202,10 +203,15 @@ void renderTriangles()
 }
 
 
-void draw() {
- 
-  background(200);
+void draw() 
+{
+  background(50);
   
+  float camZ = (height/2.0) / tan(PI*60.0 / 360.0);
+  camera(width-mouseX, height-mouseY, camZ,
+         width/2.0, height/2.0, 0,
+         0, 1, 0);
+
   // Change height of the camera with mouseY
   /*
   camera(mouseX, mouseY, 220.0, // eyeX, eyeY, eyeZ
@@ -233,6 +239,7 @@ void draw() {
     vertex(t.p2.x, t.p2.y);
     vertex(t.p3.x, t.p3.y);
   }
+  
   endShape();
  
 }
