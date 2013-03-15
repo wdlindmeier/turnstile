@@ -46,9 +46,12 @@
 		A97EB57916D48C0C00F3433C /* WDLBasinSketchViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A97EB57816D48C0C00F3433C /* WDLBasinSketchViewController.m */; };
 		A97EB57B16D48D0000F3433C /* mover.png in Resources */ = {isa = PBXBuildFile; fileRef = A97EB57A16D48D0000F3433C /* mover.png */; };
 		A97EB58116D4908200F3433C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A97EB58016D4908200F3433C /* QuartzCore.framework */; };
-		A97EB58416D491B900F3433C /* Mover.fsh in Resources */ = {isa = PBXBuildFile; fileRef = A97EB58216D491B900F3433C /* Mover.fsh */; };
-		A97EB58516D491B900F3433C /* Mover.vsh in Resources */ = {isa = PBXBuildFile; fileRef = A97EB58316D491B900F3433C /* Mover.vsh */; };
+		A97EB58416D491B900F3433C /* Basin.fsh in Resources */ = {isa = PBXBuildFile; fileRef = A97EB58216D491B900F3433C /* Basin.fsh */; };
+		A97EB58516D491B900F3433C /* Basin.vsh in Resources */ = {isa = PBXBuildFile; fileRef = A97EB58316D491B900F3433C /* Basin.vsh */; };
 		A97EB58716D4987D00F3433C /* WDLBasinSketchViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A97EB58616D4987D00F3433C /* WDLBasinSketchViewController.xib */; };
+		A989948E16DA9B3F002EDDE7 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = A989948C16DA9B3F002EDDE7 /* Icon.png */; };
+		A989948F16DA9B3F002EDDE7 /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A989948D16DA9B3F002EDDE7 /* Icon@2x.png */; };
+		A99659E716DECED700A9C68F /* DelaunayTriangulation+NOCHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = A99659E616DECED700A9C68F /* DelaunayTriangulation+NOCHelpers.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -120,9 +123,14 @@
 		A97EB57A16D48D0000F3433C /* mover.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mover.png; sourceTree = "<group>"; };
 		A97EB57E16D48E5500F3433C /* station_restore_geo_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = station_restore_geo_data.h; sourceTree = "<group>"; };
 		A97EB58016D4908200F3433C /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
-		A97EB58216D491B900F3433C /* Mover.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Mover.fsh; sourceTree = "<group>"; };
-		A97EB58316D491B900F3433C /* Mover.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Mover.vsh; sourceTree = "<group>"; };
+		A97EB58216D491B900F3433C /* Basin.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Basin.fsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
+		A97EB58316D491B900F3433C /* Basin.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Basin.vsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		A97EB58616D4987D00F3433C /* WDLBasinSketchViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WDLBasinSketchViewController.xib; sourceTree = "<group>"; };
+		A989948C16DA9B3F002EDDE7 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		A989948D16DA9B3F002EDDE7 /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
+		A99659E416DECE9F00A9C68F /* Edgy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Edgy.h; sourceTree = "<group>"; };
+		A99659E516DECED700A9C68F /* DelaunayTriangulation+NOCHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DelaunayTriangulation+NOCHelpers.h"; sourceTree = "<group>"; };
+		A99659E616DECED700A9C68F /* DelaunayTriangulation+NOCHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DelaunayTriangulation+NOCHelpers.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -218,9 +226,12 @@
 				A97EB53316D48ACC00F3433C /* DelaunayPoint.m */,
 				A97EB53416D48ACC00F3433C /* DelaunayTriangle.h */,
 				A97EB53516D48ACC00F3433C /* DelaunayTriangle.m */,
+				A99659E516DECED700A9C68F /* DelaunayTriangulation+NOCHelpers.h */,
+				A99659E616DECED700A9C68F /* DelaunayTriangulation+NOCHelpers.m */,
 				A97EB53616D48ACC00F3433C /* DelaunayTriangulation.h */,
 				A97EB53716D48ACC00F3433C /* DelaunayTriangulation.m */,
 				A97EB53816D48ACC00F3433C /* Edgy-Prefix.pch */,
+				A99659E416DECE9F00A9C68F /* Edgy.h */,
 				A97EB53916D48ACC00F3433C /* VoronoiCell.h */,
 				A97EB53A16D48ACC00F3433C /* VoronoiCell.m */,
 			);
@@ -246,8 +257,8 @@
 		A97EB54E16D48B0800F3433C /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
-				A97EB58216D491B900F3433C /* Mover.fsh */,
-				A97EB58316D491B900F3433C /* Mover.vsh */,
+				A97EB58216D491B900F3433C /* Basin.fsh */,
+				A97EB58316D491B900F3433C /* Basin.vsh */,
 				A97EB54F16D48B1000F3433C /* SimpleLine.fsh */,
 				A97EB55016D48B1000F3433C /* SimpleLine.vsh */,
 			);
@@ -289,6 +300,8 @@
 		A97EB57C16D48E3100F3433C /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				A989948C16DA9B3F002EDDE7 /* Icon.png */,
+				A989948D16DA9B3F002EDDE7 /* Icon@2x.png */,
 				A97EB57A16D48D0000F3433C /* mover.png */,
 			);
 			name = Assets;
@@ -367,8 +380,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A97EB58416D491B900F3433C /* Mover.fsh in Resources */,
-				A97EB58516D491B900F3433C /* Mover.vsh in Resources */,
+				A97EB58416D491B900F3433C /* Basin.fsh in Resources */,
+				A97EB58516D491B900F3433C /* Basin.vsh in Resources */,
 				A97EB55116D48B1000F3433C /* SimpleLine.fsh in Resources */,
 				A97EB55216D48B1000F3433C /* SimpleLine.vsh in Resources */,
 				A97EB51316D48A5000F3433C /* InfoPlist.strings in Resources */,
@@ -380,6 +393,8 @@
 				A97EB52916D48A5000F3433C /* WDLViewController.xib in Resources */,
 				A97EB57B16D48D0000F3433C /* mover.png in Resources */,
 				A97EB58716D4987D00F3433C /* WDLBasinSketchViewController.xib in Resources */,
+				A989948E16DA9B3F002EDDE7 /* Icon.png in Resources */,
+				A989948F16DA9B3F002EDDE7 /* Icon@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -413,6 +428,7 @@
 				A97EB57516D48B8C00F3433C /* NOC3DSketchViewController.m in Sources */,
 				A97EB57616D48B8C00F3433C /* NOCSketchViewController.m in Sources */,
 				A97EB57916D48C0C00F3433C /* WDLBasinSketchViewController.m in Sources */,
+				A99659E716DECED700A9C68F /* DelaunayTriangulation+NOCHelpers.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -537,6 +553,7 @@
 				A97EB52E16D48A5000F3433C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
