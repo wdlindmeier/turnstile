@@ -66,7 +66,7 @@ void parseAllStations()
 
   int streamIndex = 0;
   for (Object stationID : parser.stations.keySet()) {
-    parseStationWithKey((String)stationID, streamIndex);    
+    parseStationWithKey((String)stationID, streamIndex);
     streamIndex++;
   }
   
@@ -116,7 +116,43 @@ void parseStationWithKey(String stationKey, int streamIndex)
   selectedStation.totalEntries = totalEntries;
   
   selectedStation.calculateRidershipDepth();
+  
+  if(selectedStation.stationID.equals("305") || // graham
+     selectedStation.stationID.equals("431") || // times sq
+     selectedStation.stationID.equals("432") ||    
+     selectedStation.stationID.equals("200") || // bedford
+     selectedStation.stationID.equals("443") || // wall st
+     selectedStation.stationID.equals("444") || 
+     selectedStation.stationID.equals("171") || // Atlantic
+     selectedStation.stationID.equals("172") || 
+     selectedStation.stationID.equals("173") || 
+     selectedStation.stationID.equals("174") || 
+     selectedStation.stationID.equals("28")  || // Union Sq
+     selectedStation.stationID.equals("29")  ||
+     selectedStation.stationID.equals("308") || // Grand Central
+     selectedStation.stationID.equals("309") ||
+     selectedStation.stationID.equals("405") // Queens Plaza
+     ){
+       
+    printStationAndTime(selectedStation);
+    
+  }
 
+}
+
+void printStationAndTime(Station station)
+{
+    println(station);
+    println("dateRidershipRestored: "+station.dateRidershipRestored);
+    long msDelta = station.dateRidershipRestored.getTime() - msAtSandy;
+    long numSeconds = msDelta / 1000;
+    long numMinutes = numSeconds / 60;
+    long numHours = numMinutes / 60;
+    long numDays = numHours / 24;
+    long numWeeks = numDays / 7;    
+    long numExtraHours = numHours - (numDays*24);
+    
+    println(numDays+" days, "+numExtraHours+" hours"); 
 }
 
 void keyPressed()
